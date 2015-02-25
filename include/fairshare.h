@@ -24,17 +24,6 @@
 #define  FAIRSHARE_INC
 
 //--------------------------------------------------------------------------
-//  includes
-//--------------------------------------------------------------------------
-// {{{
-// standard libraries
-#include <string>                    // string handling
-
-// external libraries
-#include <boost/program_options.hpp> // allows to set program options
-//}}}
-
-//--------------------------------------------------------------------------
 //  function declarations
 //--------------------------------------------------------------------------
 void   DisplayHelp (const char *execName,
@@ -46,6 +35,7 @@ void   ParseIniFile   ( const std::string & fileName);
 void   DisplayResults ( );
 double CalculateRatio ( const double income_1, const double income_2 );
 void   CheckIncomeIsNonZeroOrExit ( );
+
 //--------------------------------------------------------------------------
 //  global variables
 //--------------------------------------------------------------------------

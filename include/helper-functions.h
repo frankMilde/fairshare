@@ -58,13 +58,13 @@ void        DisplayVector(const std::vector<T> & v) {
   std::cout << std::endl;
 }   // -----  end of function DisplayVector  -----
 
-bool        IsNumber                      (const double x);
-bool        IsFiniteNumber                (const double x);
+bool        IsNumber       (const double x);
+bool        IsFiniteNumber (const double x);
 
-double      StringToDouble                (const std::string & doubleAsString);
+double      StringToDouble (const std::string & doubleAsString);
 
 template <typename T>
-std::string NumberToString                (const T & number){
+std::string NumberToString (const T & number){
   std::ostringstream convert; // stream used for the conversion
 
   convert << number;          // insert the textual representation of

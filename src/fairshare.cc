@@ -1,7 +1,7 @@
 //
 // =========================================================================
 //
-//       Filename:  rent-share.cc
+//       Filename:  fairshare.cc
 //
 //    Description:  Calculates the expenses of each room mate such that
 //                  everybody pays the same percentage of ones income.
