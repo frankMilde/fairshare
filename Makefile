@@ -24,7 +24,7 @@ INCLUDE += -I$(INCLUDE_DIR)/
 
 # ctags# {{{
 #CTALL = $(INCLUDE_DIR)/*\
-				$(SRCS_DIR)/*
+        $(SRCS_DIR)/*
 
 #CTALL =  $(SRCS_DIR)/*
 CTALL =  $(SRCS)
@@ -216,10 +216,10 @@ all: debug
 #all: release
 
 debug:
-	$(MAKE) BUILD=debug target ctags 
+  $(MAKE) BUILD=debug target ctags 
 
 release:
-	$(MAKE) BUILD=release target strip symlink
+  $(MAKE) BUILD=release target strip symlink
 
 -include $(DEPS)
 
@@ -228,63 +228,63 @@ release:
 #endif
 
 strip: 
-	$(ECHO) 
-	$(ECHO) "Stripping executable..."
-	$(STRIP) $(BIN_DIR)/$(TARGET)
+  $(ECHO) 
+  $(ECHO) "Stripping executable..."
+  $(STRIP) $(BIN_DIR)/$(TARGET)
 
 target: $(BIN_DIR)/$(TARGET)
 
 $(BIN_DIR)/$(TARGET): $(OBJS)
-	$(ECHO) 
-	$(ECHO) Linking $^ ...
-	$(MKDIR) $(BIN_DIR)
-	$(CXX)  $(LDFLAGS) -o $@  $^ $(LDLIBS_BOOST) $(LDLIBS)
+  $(ECHO) 
+  $(ECHO) Linking $^ ...
+  $(MKDIR) $(BIN_DIR)
+  $(CXX)  $(LDFLAGS) -o $@  $^ $(LDLIBS_BOOST) $(LDLIBS)
 
 # compile and create dependency files
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cc
-	$(MKDIR) $(OBJS_DIR)
-	$(ECHO) 
-	$(ECHO) Compiling $< and create dependency for $(patsubst %.o,%.d,$@)...
-	LC_ALL=en_US $(CXX) $(CXXFLAGS) -o $@ -c $< $(DEPFLAGS)  $(patsubst %.o,%.d,$@)
+  $(MKDIR) $(OBJS_DIR)
+  $(ECHO) 
+  $(ECHO) Compiling $< and create dependency for $(patsubst %.o,%.d,$@)...
+  LC_ALL=en_US $(CXX) $(CXXFLAGS) -o $@ -c $< $(DEPFLAGS)  $(patsubst %.o,%.d,$@)
 #$(CXX) $(CXXFLAGS) $< -c -o $@ 
 
 
 # Rules for generating the tags.
 ctags: $(CTALL)
-	$(ECHO) 
-	$(ECHO) "Creating ctags..."
-	$(CTAGS) $(CTALL)
+  $(ECHO) 
+  $(ECHO) "Creating ctags..."
+  $(CTAGS) $(CTALL)
 
 # Create symlink to binary in root project folder
 symlink: $(PROG_NAME)
 
 $(PROG_NAME):
-	$(ECHO) 
-	$(ECHO) "Creating symlink..."
-	$(RM) $(PROG_NAME)
-	$(SYMLINK) $(BIN_DIR)/$(TARGET) $(PROG_NAME)
+  $(ECHO) 
+  $(ECHO) "Creating symlink..."
+  $(RM) $(PROG_NAME)
+  $(SYMLINK) $(BIN_DIR)/$(TARGET) $(PROG_NAME)
 
 clean:
-	$(ECHO) 
-	$(ECHO) "Cleaning ..."
-	$(RM) $(PROG_NAME)
-	$(RM) $(BIN_DIR)/$(TARGET)
+  $(ECHO) 
+  $(ECHO) "Cleaning ..."
+  $(RM) $(PROG_NAME)
+  $(RM) $(BIN_DIR)/$(TARGET)
 
 veryclean:
-	$(ECHO) 
-	$(ECHO) "Cleaning all ..."
-	$(RM) $(OBJS) $(DEPS) $(BIN_DIR)/$(TARGET) 
-	$(RMDIR) $(OBJS_DIR)
-	$(RMDIR) $(BIN_DIR)
-	$(RM) tags
-	$(RM) $(PROG_NAME)
+  $(ECHO) 
+  $(ECHO) "Cleaning all ..."
+  $(RM) $(OBJS) $(DEPS) $(BIN_DIR)/$(TARGET) 
+  $(RMDIR) $(OBJS_DIR)
+  $(RMDIR) $(BIN_DIR)
+  $(RM) tags
+  $(RM) $(PROG_NAME)
 
 show:
-	$(ECHO) 
-	$(ECHO) target.......$(TARGET)
-	$(ECHO) source files.$(SRCS)
-	$(ECHO) source dir...$(SRCS_DIR)
-	$(ECHO) obj files....$(OBJS)
-	$(ECHO) obj dir......$(OBJS_DIR)
-	$(ECHO) dep files....$(DEPS)
+  $(ECHO) 
+  $(ECHO) target.......$(TARGET)
+  $(ECHO) source files.$(SRCS)
+  $(ECHO) source dir...$(SRCS_DIR)
+  $(ECHO) obj files....$(OBJS)
+  $(ECHO) obj dir......$(OBJS_DIR)
+  $(ECHO) dep files....$(DEPS)
 # }}}

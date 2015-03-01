@@ -47,7 +47,7 @@ double StringToDouble(const string & doubleString) {
 
   if ((errno == ERANGE && d <= DBL_MIN && d >= DBL_MIN) || d < DBL_MIN) {
     DisplayError("Underflow in string to double conversion of " + doubleString);
-		
+    
     exit(EXIT_FAILURE);
   }
 

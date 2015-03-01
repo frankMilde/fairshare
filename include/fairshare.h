@@ -26,12 +26,12 @@
 //  pods
 //--------------------------------------------------------------------------
 struct person {
-	std::string name;
-	double      income;
+  std::string name;
+  double      income;
 };  // -----  end of struct person  -----
 struct expense {
-	std::string name;
-	double      cost;
+  std::string name;
+  double      cost;
 };  // -----  end of struct expense  -----
 
 typedef struct person Person;
