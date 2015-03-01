@@ -119,7 +119,7 @@ void GetArgsToMain(int ac, char *av[]) {
     po::notify(vm);
   }       //----  end try -----
 
-  catch(std::exception& e) {
+  catch(std::exception& exc) {
     std::cerr <<  "ERROR: " << exc.what() << "\n\n";
     std::cerr << "Exiting program.\n\n";
     exit(EXIT_FAILURE);
@@ -314,7 +314,7 @@ int LongestString (const std::vector<Person> & persons) {
 //
 //                          | Income  | expense 1   | ... |  ... | last expense | Total   |
 //                 ============================================================================
-//                    Costs |         |     1000.00 | ... |  ... |       500.00 |    0.00 |
+//               Name/Costs |         |     1000.00 | ... |  ... |       500.00 |    0.00 |
 //                 ---------+---------+-------------+-----+------+--------------+---------|
 //                   Name 1 |    0.00 |        0.00 | ... |  ... |         0.00 |    0.00 |
 //                 ---------+---------+-------------+-----+------+--------------+---------|
@@ -337,7 +337,7 @@ void DisplayResults (const std::vector<Person> & p, const std::vector<Expense> &
 
   int width_expense = LongestString(e);
   int width_person  = LongestString(p);
-  int width_income  = 6; // widths of the string "Income"
+  int width_income  = 10; // widths of the string "Name/Costs"
 
   int width = width_income;
   if (width_expense > width) {
@@ -412,7 +412,7 @@ void DisplayResults (const std::vector<Person> & p, const std::vector<Expense> &
     << " "
     << right
     << setw(width-1)
-    << "Costs" << " |" 
+    << "Name/Costs" << " |" 
     << setw(width-1) << setprecision(2) << fixed << right
     << " " <<  " |";
   double sumCosts =0.;
