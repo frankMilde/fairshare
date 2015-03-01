@@ -17,10 +17,6 @@ OPTIONS:
 * -h [ --help ]         produce help message
 * -1 [ --income1 ] arg  sets first income
 * -2 [ --income2 ] arg  sets second income
-* -r [ --rent ] arg     sets rent
-* -u [ --util ] arg     sets utilities
-* -f [ --food ] arg     sets food expenses
-* -t [ --tele ] arg     sets telecommunication expenses
 
 
 EXAMPLES:
@@ -30,10 +26,10 @@ EXAMPLES:
  Uses parameters given by settings.ini
 
 
-`./fairshare -r 1500 -2000`
+`./fairshare -1 1500 -2 2000`
 
-Ignores the income 2 and the rent from settings.ini and uses
-the ones provided by argument the command line arguments 
+Ignores the income from  settings.ini and uses
+the ones provided by the command line arguments 
 instead.
 
 Requirements
@@ -44,7 +40,5 @@ Requirements
 
 Todos
 =====
-* use person struct and expenses vector
-* create initial settings file with user input
-* user should be able to provide arbitrary number of self named expenses
+* check if settings.ini exists, if not than create one
 * extent to use with arbitrary number of individuals
