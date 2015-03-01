@@ -6,7 +6,7 @@
 //    Description:  Calculates the expenses of each room mate such that
 //                  everybody pays the same percentage of ones income.
 //
-//        Version:  1.0
+//        Version:  1.1
 //        Created:  02/23/2015 08:14:57 PM
 //       Revision:  none
 //       Compiler:  g++
@@ -62,27 +62,26 @@
 //--------------------------------------------------------------------------
 //  global variables definitions
 //--------------------------------------------------------------------------
-double rent      = 0.0;
-double utilities = 0.0;
-double telecom   = 0.0;
-double food      = 0.0;
-double income_1  = 0.0;
-double income_2  = 0.0;
-
-std::string person_1;
-std::string person_2;
+std::vector<Person> persons;
+std::vector<Expense> expenses;
 
 // =========================================================================
 //   Main
 // =========================================================================
 int main(int argc, char *argv[]) {
 
-  ParseIniFile(kIniFileName);
+//	if (IniFileExists(kIniFileName)) {
+//		ParseIniFile(kIniFileName);
+//	} else {
+//		CreateIniFile(kIniFileName);
+//	}  // -----  end if-else  ----- 
+
+	ParseIniFile(kIniFileName);
   GetArgsToMain(argc, argv);
 
-  CheckIncomeIsNonZeroOrExit();
+  CheckIncomeIsNonZeroOrExit(persons);
   
-  DisplayResults();
+  DisplayResults(persons,expenses);
 
   return EXIT_SUCCESS;
 }
@@ -98,23 +97,14 @@ void GetArgsToMain(int ac, char *av[]) {
     opts.add_options()
       ("help,h", "produce help message")
       ("income1,1",
-       po::value<double>(&income_1 ),
+       po::value<double>(&persons[0].income ),
        "sets first income") 
       ("income2,2",
-       po::value<double>(&income_2 ),
+       po::value<double>(&persons[1].income ),
        "sets second income") 
-      ("rent,r",
-       po::value<double>(&rent ),
-       "sets rent") 
-      ("util,u",
-       po::value<double>(&utilities ),
-       "sets utilities") 
-      ("food,f",
-       po::value<double>(&food ),
-       "sets food expenses") 
-      ("tele,t",
-       po::value<double>(&telecom ),
-       "sets telecommunication expenses") 
+//      ("rent,r",
+//       po::value<double>(&rent ),
+//       "sets rent") 
       ;
 
     po::variables_map vm;
@@ -130,7 +120,7 @@ void GetArgsToMain(int ac, char *av[]) {
   }       //----  end try -----
 
   catch(std::exception& e) {
-    std::cerr <<  "ERROR: " << e.what() << "\n\n";
+    std::cerr <<  "ERROR: " << exc.what() << "\n\n";
     std::cerr << "Exiting program.\n\n";
     exit(EXIT_FAILURE);
   }       //----  end catch  -----
@@ -192,89 +182,203 @@ void DisplayHelp (const char *execName,
 void ParseIniFile (const std::string & fileName) {
 
   CheckFileExistsOrExit (fileName);
+
+	using boost::property_tree::ptree;
   
-  boost::property_tree::ptree pt;
-  boost::property_tree::ini_parser::read_ini(fileName, pt);
+  ptree pt;
+	read_ini(fileName, pt);
 
-  try {
-    rent      = pt.get<double> ("expenses.rent");
-    utilities = pt.get<double> ("expenses.utilities");
-    telecom   = pt.get<double> ("expenses.telecom");
-    food      = pt.get<double> ("expenses.food");
+	Person p1;
+	Person p2;
 
-    income_1  = pt.get<double> ("person1.income");
-    income_2  = pt.get<double> ("person2.income");
+	try {
+		p1.income = pt.get<double> ("person1.income");
+		p2.income = pt.get<double> ("person2.income");
 
-    person_1  = pt.get<std::string> ("person1.name");
-    person_2  = pt.get<std::string> ("person2.name");
-  }
-  catch (std::exception const& e) {
-    DisplayError(e.what());
-    exit(EXIT_FAILURE);
-  }
+		p1.name   = pt.get<std::string> ("person1.name");
+		p2.name   = pt.get<std::string> ("person2.name");
+	}
+	catch (std::exception const& exc) {
+		DisplayError(exc.what());
+		exit(EXIT_FAILURE);
+	}
+	persons.push_back(p1);
+	persons.push_back(p2);
+
+	// https://stackoverflow.com/questions/6656380/boost-1-46-1-property-tree-how-to-iterate-through-ptree-receiving-sub-ptrees
+	// https://stackoverflow.com/questions/16135285/iterate-over-ini-file-on-c-probably-using-boostproperty-treeptree
+	ptree expenses_tree = pt.get_child("expenses");
+
+	try {
+		for (auto &v : expenses_tree) {
+			Expense e;
+			e.name = v.first;
+			e.cost = StringToDouble(v.second.data());
+			expenses.push_back(e);
+		}
+	}
+	catch (std::exception const& exc) {
+		DisplayError(exc.what());
+		exit(EXIT_FAILURE);
+	}
 
 }   // -----  end of function ParseIniFileWavefunction  -----
 
-double CalculateRatio (const double income_1, const double income_2 ) {
-  const double alpha = income_1/income_2;
-  return 1./(income_2*(1.+alpha));
+double CalculateRatio (const std::vector<Person> & persons ) {
+  const double alpha = persons[0].income/persons[1].income;
+  return 1./(persons[1].income*(1.+alpha));
 }  // -----  end of function CalculateIncomeRatio  -----
 
-void CheckIncomeIsNonZeroOrExit ( ) {
+void CheckIncomeIsNonZeroOrExit (const std::vector<Person> & persons) {
 
-  bool income_1_isZero = false;
-  bool income_2_isZero = false;
+  for (auto p = persons.begin(); p != persons.end(); ++p) {
+		if ((*p).income <= 0. && (*p).income >= 0. ) {
+			DisplayError("Incomes have to be non zero.");
+			exit(EXIT_FAILURE);
+		}  // -----  end if  ----- 
+	}  // -----  end for  ----- 
 
-  if (income_1 <= 0. && income_1 >= 0.) {
-    income_1_isZero = true;
-  }
-  if (income_2 <= 0. && income_2 >= 0.) {
-    income_2_isZero = true;
-  }
-
-  if(income_1_isZero || income_2_isZero) {
-    DisplayError("Both incomes have to be non zero.");
-    exit(EXIT_FAILURE);
-  }
 }  // -----  end of function CheckIncomeIsNonZeroOrExit  -----
 
-void DisplayResults (  ) {
+void DisplayInputs (const std::vector<Person> & persons, const std::vector<Expense> & expenses) {
+	
+  for (auto p = persons.begin(); p != persons.end(); ++p) {
+    std::cout << (*p).name << " " << (*p).income << std::endl;
+	}  // -----  end for  ----- 
+  for (auto e = expenses.begin(); e != expenses.end(); ++e) {
+    std::cout <<(*e).name << " " << (*e).cost << std::endl;
+	}  // -----  end for  ----- 
 
-  double ratio = CalculateRatio(income_1,income_2);
-  double percentTotal = (rent+utilities+telecom+food)*ratio;
+}  // -----  end of function DisplayInputs  -----
+
+
+// ===  FUNCTION  ==========================================================
+//         Name:  LongestString
+//  Description:  
+// =========================================================================
+int LongestString (const std::vector<Expense> & expenses) {
+
+	size_t size = 0;
+
+	// go through the names of the expenses
+	for (auto e = expenses.begin(); e != expenses.end(); ++e) {
+		if ((*e).name.size() > size) {
+			size = (*e).name.size();
+		}  // -----  end if  ----- 
+	}  // -----  end for  ----- 
+
+	// go through the costs of the expenses
+	double sumCosts =0.;
+	for (auto e = expenses.begin(); e != expenses.end(); ++e) {
+			sumCosts += (*e).cost;
+	}  // -----  end for  ----- 
+		std::ostringstream sstream;
+		sstream << std::setprecision(2) << std::fixed << sumCosts;
+		std::string costAsString = sstream.str(); 
+
+		if (costAsString.size() > size) {
+			size = costAsString.size();
+		}  // -----  end if  ----- 
+
+	return static_cast<int>(size);
+}  // -----  end of function LongestString  -----
+
+int LongestString (const std::vector<Person> & persons) {
+
+	size_t size = 0;
+
+	// go through the names of the persons
+	for (auto p = persons.begin(); p != persons.end(); ++p) {
+		if ((*p).name.size() > size) {
+			size = (*p).name.size();
+		}  // -----  end if  ----- 
+
+		// go through the income of the persons
+		std::ostringstream sstream;
+		sstream << std::setprecision(2) << std::fixed << (*p).income;
+		std::string incomeAsString = sstream.str(); 
+
+		if (incomeAsString.size() > size) {
+			size = incomeAsString.size();
+		}  // -----  end if  ----- 
+	}  // -----  end for  ----- 
+
+	return static_cast<int>(size);
+}  // -----  end of function LongestString  -----
+
+
+
+// ===  FUNCTION  ==========================================================
+//         Name:  DisplayResults
+//  Description:  We want to pretty display the following way:
+//
+//                          | Income  | expense 1   | ... |  ... | last expense | Total   |
+//								 ============================================================================
+//										Costs |         |     1000.00 | ... |  ... |       500.00 |    0.00 |
+//								 ---------+---------+-------------+-----+------+--------------+---------|
+//									 Name 1 |    0.00 |        0.00 | ... |  ... |         0.00 |    0.00 |
+//								 ---------+---------+-------------+-----+------+--------------+---------|
+//									 Name 2	|    0.00 |        0.00 | ... |  ... |         0.00 |    0.00 |
+//                
+//                First we need to find the longest string among all column
+//                headers and entries. This includes "Income", "Total", the
+//                persons names and the expenses names and all costs. We
+//                pick the longest among these and will add 4 to the column
+//                width as we start with a space and end each column with
+//                three spaces
+//
+// =========================================================================
+
+void DisplayResults (const std::vector<Person> & p, const std::vector<Expense> &e) {
+
+  double ratio = CalculateRatio(p);
 
   using namespace std;
 
-  int width = 15;
+  int width_expense = LongestString(e);
+  int width_person  = LongestString(p);
+  int width_income  = 6; // widths of the string "Income"
+
+	int width = width_income;
+	if (width_expense > width) {
+		width = width_expense;
+	}  // -----  end if  ----- 
+	if (width_person > width) {
+		width = width_person;
+	}  // -----  end if  ----- 
+	width += 4; // to add a space before the word and three spaces behind
+
   ostringstream topLine;
   ostringstream separatorLine;
 
   // We have to add +1 to the width, for the top line, bottom line,
   // separator line, since the output of separator symbol "+" is added to
-  // the total width of the line, but for us w means the width of the "inner"
-  // column
+	// the total width of the line, but for us "width" means the width of the
+	// "inner" column
   topLine
     << " "
     << setfill('=')
-    << setw(width+1)  << "="
-    << setw(width+1)  << "="
-    << setw(width+1)  << "="
-    << setw(width+1)  << "="
-    << setw(width+1)  << "="
-    << setw(width+1)  << "="
-    << setw(width+1)  << "="
-    << setfill(' ')
-    << endl;
+    << setw(width+1)  << "="  // cost   column
+    << setw(width+1)  << "="; // income column
+	for (auto i = e.begin(); i != e.end(); ++i) {
+		topLine
+			<< setw(width+1) << "=";
+	}  // -----  end for  ----- 
+	topLine
+		<< setw(width+1)  << "=" // total column
+		<< setfill(' ')
+		<< endl;
 
   separatorLine 
     << " "
     << setfill('-')
     << setw(width+1)  << "+"
-    << setw(width+1)  << "+"
-    << setw(width+1)  << "+"
-    << setw(width+1)  << "+"
-    << setw(width+1)  << "+"
-    << setw(width+1)  << "+"
+    << setw(width+1)  << "+";
+	for (auto i = e.begin(); i != e.end(); ++i) {
+  separatorLine
+    << setw(width+1) << "+";
+	}  // -----  end for  ----- 
+  separatorLine
     << setw(width+1)  << "|"
     << setfill(' ')
     << endl;
@@ -291,76 +395,65 @@ void DisplayResults (  ) {
     << setw(width-1)
     << " " << " |" 
     << setw(width-1) << setprecision(2) << fixed << left
-    << " Income" << " |" 
-    << setw(width-1) << fixed << left
-    << " Rent" << " |" 
-    << setw(width-1) << fixed << left
-    << " Utilities" << " |" 
-    << setw(width-1) << fixed << left
-    << " Telecom" << " |" 
-    << setw(width-1) << fixed << left
-    << " Food" << " |" 
+    << " Income" << " |";
+	for (auto i = e.begin(); i != e.end(); ++i) {
+		cout
+		<< " "	
+    << setw(width-2) << setprecision(2) << fixed << left
+		<< (*i).name << " |";
+	}  // -----  end for  ----- 
+	cout 
     << setw(width-1) << fixed << left
     << " Total" << " |" 
     << std::endl
     << topLine.str();
-  cout 
-    << " "
-    << right
-    << setw(width-1)
-    << "Costs" << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << " " <<  " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << rent << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << utilities << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << telecom << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << food << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << (rent + utilities + telecom + food) << " |" 
-    << std::endl
-    << separatorLine.str();
-  cout 
-    << " "
-    << right
-    << setw(width-1)
-    << person_1 << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << income_1 << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << income_1 * ratio * rent << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << income_1 * ratio * utilities << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << income_1 * ratio * telecom << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << income_1 * ratio * food << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << income_1 * ratio * (rent + utilities + telecom + food) << " |" 
-    << std::endl
-    << separatorLine.str();
-  cout 
-    << " "
-    << right
-    << setw(width-1)
-    << person_2 << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << income_2 << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << income_2 * ratio * rent << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << income_2 * ratio * utilities << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << income_2 * ratio * telecom << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << income_2 * ratio * food << " |" 
-    << setw(width-1) << setprecision(2) << fixed << right
-    << income_2 * ratio * (rent + utilities + telecom + food) << " |" 
-    << std::endl;
 
+	cout 
+		<< " "
+		<< right
+		<< setw(width-1)
+		<< "Costs" << " |" 
+		<< setw(width-1) << setprecision(2) << fixed << right
+		<< " " <<  " |";
+	double sumCosts =0.;
+	for (auto i = e.begin(); i != e.end(); ++i) {
+		cout
+			<< setw(width-1) << setprecision(2) << fixed << right
+			<< (*i).cost << " |";
+			sumCosts += (*i).cost;
+	}  // -----  end for  ----- 
+	cout 
+		<< setw(width-1) << setprecision(2) << fixed << right
+		<< sumCosts << " |" 
+		<< std::endl
+		<< separatorLine.str();
+
+	for (auto j = p.begin(); j != p.end(); ++j) {
+		auto final_j = p.end();
+		--final_j;
+		cout 
+			<< " "
+			<< right
+			<< setw(width-1)
+			<< (*j).name << " |" 
+			<< setw(width-1) << setprecision(2) << fixed << right
+			<< (*j).income << " |";
+
+		for (auto i = e.begin(); i != e.end(); ++i) {
+			cout 
+				<< setw(width-1) << setprecision(2) << fixed << right
+				<< (*j).income * ratio * (*i).cost << " |";
+		}  // -----  end for expenses  ----- 
+		cout 
+			<< setw(width-1) << setprecision(2) << fixed << right
+			<< (*j).income * ratio * sumCosts << " |" 
+			<< std::endl;
+			if (j != final_j) {
+				cout << separatorLine.str();
+			}
+	}  // -----  end for persons  ----- 
+
+  double percentTotal = sumCosts*ratio;
   std::cout
     << std::endl
     << std::endl

@@ -50,7 +50,7 @@ DEPS   = $(OBJS:.o=.d)
 
 # target
 PROG_NAME = fairshare
-TARGET = $(PROGNAME)_$(BUILD)
+TARGET = $(PROG_NAME)_$(BUILD)
 
 # compiler
 CXX = g++
@@ -211,12 +211,12 @@ LDFLAGS += -static
 # RULES
 ###########################################
 # {{{
-#all: debug
+all: debug
 
-all: release
+#all: release
 
 debug:
-	$(MAKE) BUILD=debug target ctags symlink
+	$(MAKE) BUILD=debug target ctags 
 
 release:
 	$(MAKE) BUILD=release target strip symlink

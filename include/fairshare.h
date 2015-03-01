@@ -22,6 +22,20 @@
 //
 #ifndef  FAIRSHARE_INC
 #define  FAIRSHARE_INC
+//--------------------------------------------------------------------------
+//  pods
+//--------------------------------------------------------------------------
+struct person {
+	std::string name;
+	double      income;
+};  // -----  end of struct person  -----
+struct expense {
+	std::string name;
+	double      cost;
+};  // -----  end of struct expense  -----
+
+typedef struct person Person;
+typedef struct expense Expense;
 
 //--------------------------------------------------------------------------
 //  function declarations
@@ -29,24 +43,15 @@
 void   DisplayHelp (const char *execName,
                     const boost::program_options::options_description opts);
 
-void   GetArgsToMain  ( int ac, char *av[]);
-void   ParseIniFile   ( const std::string & fileName);
+void   CheckIncomeIsNonZeroOrExit (const std::vector<Person> & p);
+void   GetArgsToMain  (int ac, char *av[]);
+void   ParseIniFile   (const std::string & fileName);
 
-void   DisplayResults ( );
-double CalculateRatio ( const double income_1, const double income_2 );
-void   CheckIncomeIsNonZeroOrExit ( );
+int    LongestString  (const std::vector<Expense> & e);
+int    LongestString  (const std::vector<Person > & p);
 
-//--------------------------------------------------------------------------
-//  global variables
-//--------------------------------------------------------------------------
-extern std::string person_1;
-extern std::string person_2;
+double CalculateRatio (const std::vector<Person > & p);
 
-extern double income_1;
-extern double income_2;
-
-extern double rent; 
-extern double utilities;
-extern double telecom;
-extern double food;
+void   DisplayResults (const std::vector<Person> & p, const std::vector<Expense> &e);
+void   DisplayInputs  (const std::vector<Person> & p, const std::vector<Expense> &e);
 #endif   //---- #ifndef FAIRSHARE_INC  -----
