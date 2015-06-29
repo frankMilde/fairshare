@@ -27,12 +27,11 @@
 //  
 //
 //         Author:  Frank Milde (FM), frank.milde (at) posteo.de
-//        Company:  
+//        License:  GNU General Public License
+//      Copyright:  Copyright (c) 2015, Frank Milde
 //
-//           TODO:  - create person and expenses struct
-//                  - create settings file with user input
-//                  - user should be able to provide arbitrary number of
-//                    self named expenses
+//           TODO:  
+//                  - create settings file from user input
 //                  - extent to use with arbitrary number of individuals
 // =========================================================================
 
@@ -120,14 +119,12 @@ void GetArgsToMain(int ac, char *av[]) {
   }       //----  end try -----
 
   catch(std::exception& exc) {
-    std::cerr <<  "ERROR: " << exc.what() << "\n\n";
-    std::cerr << "Exiting program.\n\n";
+    DisplayError(exc.what());
     exit(EXIT_FAILURE);
   }       //----  end catch  -----
 
   catch(...) {
-    std::cerr << "ERROR: " << "Exception of unknown type!\n\n";
-    std::cerr << "Exiting program.\n\n";
+    DisplayError("Exception of unknown type!\n\n");
     exit(EXIT_FAILURE);
   }       //----  end catch -----
 
@@ -328,7 +325,6 @@ int LongestString (const std::vector<Person> & persons) {
 //                three spaces
 //
 // =========================================================================
-
 void DisplayResults (const std::vector<Person> & p, const std::vector<Expense> &e) {
 
   double ratio = CalculateRatio(p);
